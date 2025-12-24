@@ -26,7 +26,7 @@ void auto_config_page(){
   html += "</form><br>";
   html += "<center><br><a href=\"/\">Вернуться назад</a><br></center>";
   html += "<footer>© <b>CYBEREX TECH</b>, 2025. Версия микро ПО <b>"+version_code+"</b>.</footer></html>";
-  html += aconf_js;
+  html += "<script src=\"script.js?script=aconf_js\"></script>";
   html += "</body></html>";
   server.send(200, "text/html", html);
 }

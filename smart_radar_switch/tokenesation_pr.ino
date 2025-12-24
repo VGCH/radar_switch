@@ -6,7 +6,7 @@ bool validateToken() {
            cookie.replace("SESSIONID=", "");
            long now = millis() / 1000;
 
-       for (int i = 0; i < 100; i++) {
+       for (int i = 0; i < 10; i++) {
            if (cookie == tokens[i].value) {
               long tokenAge = now - tokens[i].created;
                  if (tokenAge > tokens[i].lifetime) {

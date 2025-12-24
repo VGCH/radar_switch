@@ -18,6 +18,8 @@ void page_process(){
                powerS();
          }else if(input == "a_config"){
                auto_config_page();
+         }else if(input == "scan_wifi"){
+               scan_network();
          }else{
              handleRoot();
      }
@@ -27,7 +29,6 @@ void dev_reboot(){
    if (captivePortal()) {
       return;
   }
-  String header;
   if (validateToken()){
        save_config();
        stat_reboot = true; 

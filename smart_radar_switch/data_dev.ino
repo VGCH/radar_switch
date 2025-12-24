@@ -1,27 +1,24 @@
- String millis2time(){ // преобразование миллисекунд в вид д/ч/м/с
-  
-         int times =(millis()/1000);
-         int days =  (times/3600)/24;
-         int timehour =(((times)  % 86400L) / 3600); // часы
-        if ( ((times % 3600) / 60) < 10 ) {
-         int timehour = 0;
-               }
-         int timeminuts=((times  % 3600) / 60); // минуты
-         if ( (times % 60) < 10 ) {
-         int timeminuts = 0;
-             }
-         int timeseconds=(times % 60); // секунды
-       String Time= String(days)+":"+String(twoDigits(timehour))+":"+String(twoDigits(timeminuts))+":"+String(twoDigits(timeseconds));
-       return Time;
-     }
+String millis2time() {
+    unsigned long totalSeconds = millis() / 1000;
+    
+    int days = totalSeconds / 86400;           // 86400 = 24 * 3600
+    int hours = (totalSeconds % 86400) / 3600;
+    int minutes = (totalSeconds % 3600) / 60;
+    int seconds = totalSeconds % 60;
+    
+    String timeStr = String(days) + ":" + 
+                     twoDigits(hours) + ":" + 
+                     twoDigits(minutes) + ":" + 
+                     twoDigits(seconds);
+    return timeStr;
+}
 
  String twoDigits(int digits){
-             if(digits < 10) {
+        if(digits < 10) {
           String i = '0'+String(digits);
           return i;
-         }
-          else {
-        return String(digits);
+         }else{
+          return String(digits);
          }
       }
 
@@ -29,46 +26,38 @@ void time_work(){
    if (captivePortal()) {  
     return;
   }
-  String header;
+
   if (validateToken()){
-   String outjson  ="{";
-          outjson += "\"time\":\""+millis2time()+"\",";
-          outjson += "\"chanel1\":";
-  if(load_on){
-          outjson  += "\"On\",";
-     }else{
-          outjson  += "\"Off\",";
-           }
-          outjson += "\"hum\":";
-          outjson += "\""+String(hum)+"\",";
-          outjson += "\"level1\":";
-          outjson += "\""+String(load_on)+"\",";
-          outjson += "\"auto_st\":";
-          outjson += "\""+get_switch()+"\",";
-          outjson += "\"MQTT\":\""+MQTT_status()+"\"";
-          outjson += "}";
-     server.send(200, "text", outjson);   
+    StaticJsonDocument<200> doc;
+
+     doc["time"]      = millis2time();
+     doc["chanel1"]   = load_on ? "On" : "Off";
+     doc["distance"]  = String(distance);
+     doc["level1"]    = String(load_on);
+     doc["auto_st"]   = settings.auto_en ? "checked" : "" ;
+     doc["MQTT"]      = MQTT_status();
+
+     String outjson;
+     serializeJson(doc, outjson);
+     server.send(200, "text", outjson);    
   }   
 }
 
 
 
-String JSON_DATA(){
-     String outjson  = "{";
-            outjson += "\"c\":";
-     if(load_on){
-            outjson  += "\"On\",";
-        }else{
-            outjson  += "\"Off\",";
-           }
-          outjson += "\"hum\":";
-          outjson += "\""+String(hum)+"\",";
-          outjson += "\"a\":";
-          outjson += "\""+String(settings.auto_en)+"\",";
-          outjson += "\"h_on\":";
-          outjson += "\""+String(settings.auto_on * 0.0003)+"\",";
-          outjson += "\"h_off\":";
-          outjson += "\""+String(settings.auto_off * 0.0003)+"\"";
-          outjson += "}";  
-     return outjson;
+String JSON_DATA() {
+    StaticJsonDocument<256> doc;  
+    
+    doc["c"]        = load_on ? "On" : "Off";
+    doc["distance"] = String(distance, 1);  // 1 знак после запятой вместо 2
+    doc["a"]        = String(settings.auto_en);
+    doc["h_on"]     = String(settings.auto_on * 0.0003, 1);
+    doc["h_off"]    = String(settings.auto_off * 0.0003, 1);
+    doc["d_time"]   = String(settings.off_time);
+    doc["filter_r"] = String(settings.r_filter);
+    doc["filter_q"] = String(settings.q_filter);
+    
+    String outjson;
+    serializeJson(doc, outjson);
+    return outjson;
 }

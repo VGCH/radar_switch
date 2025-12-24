@@ -11,6 +11,7 @@ void update_fw_page(){
          html += "</head><body>";
          html += "<h2>Обновление прошивки устройства</h2>";
          html += "<form id=\"config-form\" enctype=\"multipart/form-data\" >";
+         html += "<div id=\"prg\"></div>";
          html += "<div id=\"response\">";
          html += "<label for=\"file\">Файл прошивки:</label>";
          html += "<label class=\"input-file\">";
@@ -22,7 +23,7 @@ void update_fw_page(){
          html += "</form><br>";
          html += "<center><br><a href=\"/\">Вернуться назад</a><br></center>";
          html += "<footer>© <b>CYBEREX TECH</b>, 2025. Версия микро ПО <b>"+version_code+"</b>.</footer></html>";
-         html += update_js;
+         html += "<script src=\"script.js?script=update_js\"></script>";
          html += "</body></html>";
   server.send(200, "text/html", html);
 }

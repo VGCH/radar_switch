@@ -2,13 +2,13 @@ void indata(){
      if (captivePortal()) { 
     return;
   }
-  if (!validateToken()) {
+  if(!validateToken()) {
     server.sendHeader("Location", "/login");
     server.sendHeader("Cache-Control", "no-cache");
     server.send(301);
     return;
   }
-    if (server.hasArg("switch")){  
+    if(server.hasArg("switch")){  
     String msg;   
       if(server.arg("switch")=="on"){
         settings.mqtt_en = true;
@@ -31,7 +31,7 @@ void indata(){
     } 
     server.send(200, "text/html", msg);
   }
-   if (server.hasArg("switch_auto")){  
+   if(server.hasArg("switch_auto")){  
     String msg;   
       if(server.arg("switch_auto")=="on"){
         settings.auto_en = true;
@@ -79,20 +79,21 @@ void indata(){
            settings.auto_off = server.arg("off_range").toFloat(); 
            settings.auto_on  = server.arg("on_range").toFloat();
            save_config();
+           if(settings.mqtt_en){ MQTT_send_data("jsondata", JSON_DATA());}
     }
    
     String data = "";
     data += "<text><b>Данные автоматизации успешно сохранены!</b></text>";
     server.send(200, "text/html", data);
   }
- /* if (server.hasArg("mode")){     
-     String moder = server.arg("mode");
-     settings.counter_coeff = moder.toInt();
-     fan_level = moder.toInt();
-     level = map (fan_level, 0, 100, 1, set_delay);
-     save_config();
-     String data  = "<text><b>Данные успешно сохранены!</b></text><br>";
-     
-     server.send(200, "text/html", data);
-  }*/
+
+  if(server.hasArg("flevel")){  
+    String msg = server.arg("flevel");   
+           int level = msg.toInt();
+           settings.off_time = level;
+           save_config();
+           server.send(200, "text/html", String(server.arg("flevel").c_str()));
+          if(settings.mqtt_en){ MQTT_send_data("jsondata", JSON_DATA());}
+  }
+
 }

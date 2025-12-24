@@ -34,10 +34,10 @@ void handleLogin() {
       String tokenValue = generateToken();
       for (int i = 0; i < 10; i++) {
       if (tokens[i].value == "") {
-        tokens[i].value = tokenValue;
-        tokens[i].created = millis() / 1000;
-        tokens[i].lifetime = TOKEN_LIFETIME;
-        break;
+          tokens[i].value = tokenValue;
+          tokens[i].created = millis() / 1000;
+          tokens[i].lifetime = TOKEN_LIFETIME;
+          break;
       }
     }
       server.sendHeader("Location", "/");
@@ -143,6 +143,7 @@ void wlanPageHandler(){
   
   String html = "<html><head><meta charset=\"UTF-8\"><title>Wi-Fi конфигурация</title>";
         html += "<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" />";
+        html += "<script src=\"script.js?script=js_wifi\"></script>"; 
         html += "<h2>Настройка беспроводного соединения</h2>";
         html += "<form>"; 
   if (WiFi.status() == WL_CONNECTED){
@@ -155,14 +156,29 @@ void wlanPageHandler(){
     html += "Устройство отключено от сети<br>";
   }
   
-  html += "Для подключения к  Wi-Fi, выберите сеть из списка...</form>";
-  
+  html += "Для подключения к Wi-Fi выберите сеть из списка...</form>";
+  html += "<form method=\"POST\">";
+  html += "<div id=\"response\"><text>Выполняется сканирование ... </text></div>";
+  html += "</form>";
+  html += "</body>";
+  html += "<center><br><a href=\"/\">Вернуться назад</a><br></center>";
+  html += "<footer>© <b>CYBEREX TECH</b>, 2025. Версия микро ПО <b>"+version_code+"</b>.</footer></html>";
+  server.send(200, "text/html", html);
+}
+
+void scan_network(){
+   if (!validateToken()) {
+    server.sendHeader("Location", "/login");
+    server.sendHeader("Cache-Control", "no-cache");
+    server.send(301);
+    return;
+  }
+  String html = "";
   int ap_count = WiFi.scanNetworks();
   
   if (ap_count == 0){
-       html += "Не найдено ниодной беспроводной сети.<br>";
+       html += "Не найдено ни одной беспроводной сети.<br>";
   }else{
-       html += "<form method=\"POST\">";
     for (uint8_t ap_idx = 0; ap_idx < ap_count; ap_idx++){
       html += "<input type=\"radio\" name=\"ssid\" value=\"" + String(WiFi.SSID(ap_idx)) + "\"><text>";
       html += "<b>"+String(WiFi.SSID(ap_idx)) + "</b> Уровень сигнала: " + WiFi.RSSI(ap_idx) +" dBi";
@@ -173,13 +189,8 @@ void wlanPageHandler(){
     html += "<br>WiFi пароль доступа (если сеть защищена):<br>";
     html += "<input type=\"text\" name=\"password\">";
     html += "<input type=\"submit\" value=\"Подключиться\">";
-    html += "</form>";
   }
- 
-  html += "</body>";
-  html += "<center><br><a href=\"/\">Вернуться назад</a><br></center>";
-  html += "<footer>© <b>CYBEREX TECH</b>, 2025. Версия микро ПО <b>"+version_code+"</b>.</footer></html>";
-  server.send(200, "text/html", html);
+    server.send(200, "text/html", html);
 }
 
 void change_login_pass(){
@@ -204,7 +215,11 @@ void change_login_pass(){
   html += "</form><br>";
   html += "<center><br><a href=\"/\">Вернуться назад</a><br></center>";
   html += "<footer>© <b>CYBEREX TECH</b>, 2025. Версия микро ПО <b>"+version_code+"</b>.</footer></html>";
-  html += pass_js;
+  html += "<script src=\"script.js?script=pass_js\"></script>";
   html += "</body></html>";
   server.send(200, "text/html", html);
+}
+
+void css(){
+  server.send(200, "text", html_style);
 }
